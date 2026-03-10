@@ -19,7 +19,8 @@ var app = builder.Build();
 // Scalar UI — werkt automatisch op HTTPS
 if (app.Environment.IsDevelopment())
 {
-    app.MapScalarApiReference(); // beschikbaar op /scalar/v1
+    app.UseSwagger(); // genereert het OpenAPI JSON-schema op /swagger/v1/swagger.json
+    app.MapScalarApiReference(); // Scalar UI beschikbaar op /scalar/v1
 }
 
 app.UseHttpsRedirection();
