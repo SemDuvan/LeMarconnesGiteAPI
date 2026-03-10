@@ -19,7 +19,6 @@ var app = builder.Build();
 // Scalar UI — werkt automatisch op HTTPS
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
     app.MapScalarApiReference(); // beschikbaar op /scalar/v1
 }
 
