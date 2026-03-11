@@ -21,7 +21,24 @@ namespace LeMarconnesGiteAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var guests = await _context.Guests.ToListAsync();
+            var guests = await _context.Guests
+                .Include(g => g.Reservations)
+                .Select(g => new
+                {
+                    g.Id,
+                    g.Name,
+                    g.Email,
+                    g.Phone,
+                    Reservations = g.Reservations.Select(r => new
+                    {
+                        r.Id,
+                        r.GiteId,
+                        r.StartDate,
+                        r.EndDate,
+                        r.Status
+                    })
+                })
+                .ToListAsync();
             return Ok(guests);
         }
 
@@ -29,7 +46,26 @@ namespace LeMarconnesGiteAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var guest = await _context.Guests.FindAsync(id);
+            var guest = await _context.Guests
+                .Include(g => g.Reservations)
+                .Where(g => g.Id == id)
+                .Select(g => new
+                {
+                    g.Id,
+                    g.Name,
+                    g.Email,
+                    g.Phone,
+                    Reservations = g.Reservations.Select(r => new
+                    {
+                        r.Id,
+                        r.GiteId,
+                        r.StartDate,
+                        r.EndDate,
+                        r.Status
+                    })
+                })
+                .FirstOrDefaultAsync();
+
             if (guest == null)
                 return NotFound($"Gast met id {id} niet gevonden.");
 

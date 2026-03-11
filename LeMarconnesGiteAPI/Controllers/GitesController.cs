@@ -121,5 +121,100 @@ namespace LeMarconnesGiteAPI.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        // GET /gites/personen-opties — zonder parameter: toon beschikbare aantallen
+        //                             — met ?personen=4: toon gîtes die passen
+        [HttpGet("personen-opties")]
+        public async Task<IActionResult> GetPersonenOpties([FromQuery] int? personen)
+        {
+            if (!personen.HasValue)
+            {
+                // Geen getal ingevuld → toon welke aantallen beschikbaar zijn
+                var opties = await _context.Gites
+                    .Select(g => g.MaxOccupancy)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    Uitleg = "Voer ?personen=<aantal> in om gîtes te zien die bij dat aantal passen.",
+                    BeschikbareAantallen = opties
+                });
+            }
+
+            // Getal ingevuld → filter gîtes op MaxOccupancy
+            var gites = await _context.Gites
+                .Include(g => g.GiteFacilities)
+                    .ThenInclude(gf => gf.Facility)
+                .Where(g => g.MaxOccupancy >= personen.Value && g.IsAvailable)
+                .Select(g => new
+                {
+                    g.Id,
+                    g.Name,
+                    g.Description,
+                    g.MaxOccupancy,
+                    g.PricePerNight,
+                    Facilities = g.GiteFacilities.Select(gf => gf.Facility!.Name)
+                })
+                .ToListAsync();
+
+            if (!gites.Any())
+                return NotFound($"Geen beschikbare gîtes gevonden voor {personen.Value} personen.");
+
+            return Ok(gites);
+        }
+
+        // POST /gites/{id}/facilities — faciliteit koppelen op naam (bestaande gebruiken of nieuw aanmaken)
+        [HttpPost("{id}/facilities")]
+        public async Task<IActionResult> AddFacility(int id, [FromBody] AddFacilityToGiteDto dto)
+        {
+            var gite = await _context.Gites.FindAsync(id);
+            if (gite == null)
+                return NotFound($"Gîte met id {id} niet gevonden.");
+
+            // Zoek faciliteit op naam (hoofdletterongevoelig), maak aan als die nog niet bestaat
+            var facilityNaam = dto.Name.Trim();
+            var facility = await _context.Facilities
+                .FirstOrDefaultAsync(f => f.Name.ToLower() == facilityNaam.ToLower());
+
+            if (facility == null)
+            {
+                facility = new Facility { Name = facilityNaam };
+                _context.Facilities.Add(facility);
+                await _context.SaveChangesAsync(); // ID genereren
+            }
+
+            // Controleer of de koppeling al bestaat
+            var bestaatAl = await _context.GiteFacilities
+                .AnyAsync(gf => gf.GiteId == id && gf.FacilityId == facility.Id);
+
+            if (bestaatAl)
+                return Conflict($"Faciliteit '{facility.Name}' is al gekoppeld aan deze gîte.");
+
+            _context.GiteFacilities.Add(new GiteFacility
+            {
+                GiteId = id,
+                FacilityId = facility.Id
+            });
+
+            await _context.SaveChangesAsync();
+            return Ok($"Faciliteit '{facility.Name}' gekoppeld aan gîte '{gite.Name}'.");
+        }
+
+        // Fix 2: DELETE /gites/{id}/facilities/{facilityId} — faciliteit ontkoppelen
+        [HttpDelete("{id}/facilities/{facilityId}")]
+        public async Task<IActionResult> RemoveFacility(int id, int facilityId)
+        {
+            var koppeling = await _context.GiteFacilities
+                .FirstOrDefaultAsync(gf => gf.GiteId == id && gf.FacilityId == facilityId);
+
+            if (koppeling == null)
+                return NotFound("Deze faciliteit is niet gekoppeld aan de gîte.");
+
+            _context.GiteFacilities.Remove(koppeling);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
