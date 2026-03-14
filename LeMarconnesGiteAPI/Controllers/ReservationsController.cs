@@ -24,6 +24,7 @@ namespace LeMarconnesGiteAPI.Controllers
             var reservations = await _context.Reservations
                 .Include(r => r.Gite)
                 .Include(r => r.Guest)
+                .Include(r => r.Payments)
                 .Select(r => new
                 {
                     r.Id,
@@ -33,6 +34,7 @@ namespace LeMarconnesGiteAPI.Controllers
                     r.EndDate,
                     r.TotalPrice,
                     r.Status,
+                    Payments = r.Payments.Select(p => new { p.Id, p.Amount, p.Status, p.PaymentDate }),
                     r.CreatedAt
                 })
                 .ToListAsync();
@@ -47,6 +49,7 @@ namespace LeMarconnesGiteAPI.Controllers
             var reservation = await _context.Reservations
                 .Include(r => r.Gite)
                 .Include(r => r.Guest)
+                .Include(r => r.Payments)
                 .Where(r => r.Id == id)
                 .Select(r => new
                 {
@@ -57,6 +60,7 @@ namespace LeMarconnesGiteAPI.Controllers
                     r.EndDate,
                     r.TotalPrice,
                     r.Status,
+                    Payments = r.Payments.Select(p => new { p.Id, p.Amount, p.Status, p.PaymentDate }),
                     r.CreatedAt
                 })
                 .FirstOrDefaultAsync();
