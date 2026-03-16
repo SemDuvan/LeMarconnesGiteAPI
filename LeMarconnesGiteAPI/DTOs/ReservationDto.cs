@@ -8,6 +8,7 @@ namespace LeMarconnesGiteAPI.DTOs
         public int GuestId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
     }
 
     // PUT /reservations/{id}
