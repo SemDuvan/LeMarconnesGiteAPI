@@ -1,9 +1,8 @@
 # Bestand: .github/workflows/send-mail.yml
 name: Send Email
 
-# Wanneer deze workflow wordt uitgevoerd
 on:
-  push:       # bij elke push naar de repo
+  push:
     branches:
       - master
 
@@ -21,8 +20,16 @@ jobs:
           username: ${{ secrets.SMTP_USER }}
           password: ${{ secrets.SMTP_PASS }}
 
-          subject: Test mail van GitHub Actions
-          body: Gekke shit
+          subject: "Nieuwe commit in de repo: ${{ github.sha }}"
+          body: |
+            Ewa drerrie ,
 
+            Er is wat gepusht door ${{ github.actor }}.
+
+            Commit message:
+            ${{ github.event.head_commit.message }}
+
+            Commit SHA: ${{ github.sha }}
+            
           to: 2403737duvan@zuyd.nl
           from: pietjepuk0968@gmail.com
