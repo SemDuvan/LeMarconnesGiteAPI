@@ -1,7 +1,11 @@
+# Bestand: .github/workflows/send-mail.yml
 name: Send Email
 
+# Wanneer deze workflow wordt uitgevoerd
 on:
-  push:
+  push:       # bij elke push naar de repo
+    branches:
+      - master
 
 jobs:
   send-mail:
@@ -13,13 +17,12 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          account: ${{ secrets.SMTP_USER }}
+
+          username: ${{ secrets.SMTP_USER }}
           password: ${{ secrets.SMTP_PASS }}
-
-          sender: Pietje Puk <pietjepuk0968@gmail.com>
-          from: pietjepuk0968@gmail.com
-
-          to: 2403737duvan@zuyd.nl
 
           subject: Test mail van GitHub Actions
           body: Gekke shit
+
+          to: 2403737duvan@zuyd.nl
+          from: pietjepuk0968@gmail.com
