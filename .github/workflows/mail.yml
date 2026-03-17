@@ -1,0 +1,25 @@
+name: Send Email
+
+on:
+  push:
+
+jobs:
+  send-mail:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send mailer
+        uses: devellany/send-mail@v1.0.2
+        with:
+          host: smtp.gmail.com
+          port: 465
+          account: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+
+          sender: Pietje Puk
+          from: pietjepuk0968@gmail.com
+
+          to: 2403737duvan@zuyd.nl
+
+          subject: Test mail van GitHub Actions
+          body: Gekke shit
