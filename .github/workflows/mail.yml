@@ -11,8 +11,8 @@ jobs:
       - name: Send mailer
         uses: dawidd6/action-send-mail@v3
         with:
-          host: smtp.gmail.com
-          port: 587
+          server_address: smtp.gmail.com
+          server_port: 587
           account: ${{ secrets.SMTP_USER }}
           password: ${{ secrets.SMTP_PASS }}
 
