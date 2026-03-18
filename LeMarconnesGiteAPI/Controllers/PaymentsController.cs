@@ -44,7 +44,7 @@ namespace LeMarconnesGiteAPI.Controllers
             if (payment == null)
                 return NotFound($"Betaling met id {id} niet gevonden.");
 
-            return Ok(payment);
+            return Ok(new { payment.Id, payment.ReservationId, payment.Amount, payment.PaymentDate, payment.Status });
         }
 
         // POST /payments
@@ -65,7 +65,14 @@ namespace LeMarconnesGiteAPI.Controllers
             _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = payment.Id }, payment);
+            return CreatedAtAction(nameof(GetById), new { id = payment.Id }, new
+            {
+                payment.Id,
+                payment.ReservationId,
+                payment.Amount,
+                payment.PaymentDate,
+                payment.Status
+            });
         }
 
         // PUT /payments/{id} — status bijwerken (bijv. "Betaald")
@@ -80,7 +87,7 @@ namespace LeMarconnesGiteAPI.Controllers
                 payment.Status = dto.Status;
 
             await _context.SaveChangesAsync();
-            return Ok(payment);
+            return Ok(new { payment.Id, payment.ReservationId, payment.Amount, payment.PaymentDate, payment.Status });
         }
     }
 }
