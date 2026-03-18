@@ -8,6 +8,8 @@ namespace LeMarconnesGiteAPI.Models
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal DepositAmount { get; set; } = 0;
+        public bool DepositPaid { get; set; } = false;
         public string Status { get; set; } = "Bevestigd";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 

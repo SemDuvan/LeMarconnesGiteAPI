@@ -8,7 +8,7 @@ namespace LeMarconnesGiteAPI.DTOs
         public int GuestId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-
+        public decimal DepositAmount { get; set; } = 0;  // optioneel, default geen aanbetaling
     }
 
     // PUT /reservations/{id}
@@ -16,6 +16,7 @@ namespace LeMarconnesGiteAPI.DTOs
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public string? Status { get; set; }  // bijv. "Geannuleerd"
+        public string? Status { get; set; }      // bijv. "Geannuleerd"
+        public bool? DepositPaid { get; set; }   // markeer aanbetaling als betaald
     }
 }

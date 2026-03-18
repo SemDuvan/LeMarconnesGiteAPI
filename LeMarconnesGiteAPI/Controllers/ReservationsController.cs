@@ -33,6 +33,8 @@ namespace LeMarconnesGiteAPI.Controllers
                     r.StartDate,
                     r.EndDate,
                     r.TotalPrice,
+                    r.DepositAmount,
+                    r.DepositPaid,
                     r.Status,
                     Payments = r.Payments.Select(p => new { p.Id, p.Amount, p.Status, p.PaymentDate }),
                     r.CreatedAt
@@ -59,6 +61,8 @@ namespace LeMarconnesGiteAPI.Controllers
                     r.StartDate,
                     r.EndDate,
                     r.TotalPrice,
+                    r.DepositAmount,
+                    r.DepositPaid,
                     r.Status,
                     Payments = r.Payments.Select(p => new { p.Id, p.Amount, p.Status, p.PaymentDate }),
                     r.CreatedAt
@@ -114,6 +118,7 @@ namespace LeMarconnesGiteAPI.Controllers
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 TotalPrice = totalPrice,
+                DepositAmount = dto.DepositAmount,
                 Status = "Bevestigd"
             };
 
@@ -137,6 +142,8 @@ namespace LeMarconnesGiteAPI.Controllers
                 reservation.StartDate,
                 reservation.EndDate,
                 reservation.TotalPrice,
+                reservation.DepositAmount,
+                reservation.DepositPaid,
                 reservation.Status
             });
         }
@@ -173,6 +180,12 @@ namespace LeMarconnesGiteAPI.Controllers
                 reservation.Status = dto.Status;
             }
 
+            if (dto.DepositPaid.HasValue)
+            {
+                changes.Add($"DepositPaid: {reservation.DepositPaid} → {dto.DepositPaid.Value}");
+                reservation.DepositPaid = dto.DepositPaid.Value;
+            }
+
             // Herbereken prijs als datums gewijzigd zijn
             if (dto.StartDate.HasValue || dto.EndDate.HasValue)
             {
@@ -196,7 +209,18 @@ namespace LeMarconnesGiteAPI.Controllers
             });
 
             await _context.SaveChangesAsync();
-            return Ok(reservation);
+            return Ok(new
+            {
+                reservation.Id,
+                reservation.GiteId,
+                reservation.GuestId,
+                reservation.StartDate,
+                reservation.EndDate,
+                reservation.TotalPrice,
+                reservation.DepositAmount,
+                reservation.DepositPaid,
+                reservation.Status
+            });
         }
 
         // FR-06 + FR-09: DELETE /reservations/{id} — zet status op Geannuleerd
